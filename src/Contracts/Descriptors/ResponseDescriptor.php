@@ -2,10 +2,12 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Contracts\Descriptors;
 
+use GoldSpecDigital\ObjectOrientedOAS\Objects\Response;
+
 interface ResponseDescriptor extends Descriptor
 {
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Response[]
+     * @return Response[]
      */
     public function response(): array;
 }

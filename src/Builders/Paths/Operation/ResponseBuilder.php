@@ -3,6 +3,7 @@
 namespace LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation;
 
 use GoldSpecDigital\ObjectOrientedOAS\Contracts\SchemaContract;
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Example;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\MediaType;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Response;
@@ -14,6 +15,7 @@ use LaravelJsonApi\OpenApiSpec\Builders\Builder;
 use LaravelJsonApi\OpenApiSpec\ComponentsContainer;
 use LaravelJsonApi\OpenApiSpec\Concerns\ResolvesActionTraitToDescriptor;
 use LaravelJsonApi\OpenApiSpec\Concerns\ResolvesDescriptionAttributeFromRoute;
+use LaravelJsonApi\OpenApiSpec\Descriptors\Actions\ActionDescriptor;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Responses\WithDescriptionAttribute;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Server;
@@ -57,7 +59,7 @@ class ResponseBuilder extends Builder
     }
 
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Response[]
+     * @return Response[]
      */
     public function build(Route $route): array
     {
@@ -67,7 +69,7 @@ class ResponseBuilder extends Builder
     /**
      * @param  Schema  $data
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function buildResponse(
         SchemaContract $data,
@@ -83,7 +85,7 @@ class ResponseBuilder extends Builder
     }
 
     /**
-     * @return \LaravelJsonApi\OpenApiSpec\Descriptors\Actions\ActionDescriptor|null
+     * @return ActionDescriptor|null
      */
     protected function getDescriptor(Route $route): ?Responses\ResponseDescriptor
     {
@@ -91,7 +93,7 @@ class ResponseBuilder extends Builder
         if ($class === WithDescription::class) {
             $description = $this->descriptionFromRoute($route);
             $class = $description->getResponseClassOrExample();
-            if (is_array($class))
+            if (is_array($class)) {
                 return new WithDescriptionAttribute(
                     $this->generator,
                     $route,
@@ -99,6 +101,7 @@ class ResponseBuilder extends Builder
                     $this->defaults,
                     $class,
                 );
+            }
         }
         if (isset($this->descriptors[$class])) {
             return new $this->descriptors[$class]($this->generator, $route, $this->schemaBuilder, $this->defaults);
@@ -108,7 +111,7 @@ class ResponseBuilder extends Builder
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function addDefaults(): void
     {
@@ -234,9 +237,11 @@ class ResponseBuilder extends Builder
                         ])),
                 ),
         ])->filter(function (Response $response) {
-            if ($response->statusCode != 403)
+            if ($response->statusCode != 403) {
                 return true;
-            return !empty(new Server($this->generator)->securitySchemes());
+            }
+
+            return ! empty(new Server($this->generator)->securitySchemes());
         })->mapWithKeys(function (Response $response) {
             $ref = $this->components->addResponse($response);
 

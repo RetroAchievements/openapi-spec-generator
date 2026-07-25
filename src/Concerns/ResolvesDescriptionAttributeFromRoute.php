@@ -9,7 +9,6 @@ trait ResolvesDescriptionAttributeFromRoute
 {
     /**
      * @todo Get WithDescription attribute from route if set.
-     * @return ?WithDescription
      */
     protected function descriptionFromRoute(SpecRoute $route, bool $instance = false): ?WithDescription
     {
@@ -19,12 +18,13 @@ trait ResolvesDescriptionAttributeFromRoute
             $methodReflection = $reflection->getMethod($method);
 
             $attrs = $methodReflection->getAttributes(WithDescription::class);
-            if (!empty($attrs) && !empty($attrs[0])) {
+            if (! empty($attrs) && ! empty($attrs[0])) {
                 return $attrs[0]->newInstance();
             }
         } catch (\ReflectionException $exception) {
             return null;
         }
+
         return null;
     }
 }

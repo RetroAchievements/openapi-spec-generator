@@ -4,6 +4,7 @@ namespace LaravelJsonApi\OpenApiSpec\Commands;
 
 use GoldSpecDigital\ObjectOrientedOAS\Exceptions\ValidationException;
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 
@@ -51,18 +52,18 @@ class GenerateCommand extends Command
             return 1;
         }
 
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $storageDisk */
+        /** @var FilesystemAdapter $storageDisk */
         $storageDisk = Storage::disk(config('openapi.filesystem_disk'));
 
-        $fileName = $serverKey . '_openapi.' . $format;
-        $filePath = str_replace(base_path() . '/', '', $storageDisk->path($fileName));
+        $fileName = $serverKey.'_openapi.'.$format;
+        $filePath = str_replace(base_path().'/', '', $storageDisk->path($fileName));
 
         $this->reportSkippedRoutes();
 
-        $this->line('Complete! ' . $filePath);
+        $this->line('Complete! '.$filePath);
         $this->newLine();
         $this->line('Run the following to see your API docs');
-        $this->info('speccy serve ' . $filePath);
+        $this->info('speccy serve '.$filePath);
         $this->newLine();
 
         return 0;

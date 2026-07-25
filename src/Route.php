@@ -73,8 +73,8 @@ class Route
      * than documenting nothing. Registering a resolver is the single point at
      * which that can be corrected.
      *
-     * @param null|callable(string): string[] $resolver Receives one middleware
-     *        string and returns the scopes it requires. Null restores the default.
+     * @param  null|callable(string): string[]  $resolver  Receives one middleware
+     *                                                     string and returns the scopes it requires. Null restores the default.
      */
     public static function resolveScopesUsing(?callable $resolver): void
     {
@@ -91,7 +91,7 @@ class Route
         }
 
         foreach (self::PASSPORT_SCOPE_MIDDLEWARE as $passportMiddleware) {
-            if (str_starts_with($middleware, $passportMiddleware . ':')) {
+            if (str_starts_with($middleware, $passportMiddleware.':')) {
                 // TODO maybe parse like a CSV in case scopes have commas
                 return explode(',', substr($middleware, strlen($passportMiddleware) + 1));
             }
@@ -109,41 +109,47 @@ class Route
         $this->route = $route;
 
         $securitySchemes = config("openapi.servers.{$this->server->name()}.securitySchemes", []);
-        $matchingMiddleware = collect($securitySchemes)->map(fn(array $m) => $m['middleware']);
+        $matchingMiddleware = collect($securitySchemes)->map(fn (array $m) => $m['middleware']);
         $matchingControllers = collect($securitySchemes)->map(
-            fn(array $scheme) => $scheme['controllers'] ?? null,
-        )->map(fn(?array $controllers) => function (?string $controller) use ($controllers): bool {
+            fn (array $scheme) => $scheme['controllers'] ?? null,
+        )->map(fn (?array $controllers) => function (?string $controller) use ($controllers): bool {
             // $controller is a controller class-name with '@<method name>' appended.
-            if ($controllers === null)
+            if ($controllers === null) {
                 return true;
+            }
 
             $split = explode('@', $controller);
-            if (count($split) < 2)
+            if (count($split) < 2) {
                 return false;
+            }
 
             foreach ($controllers as $targetClass => $actions) {
                 if (is_int($targetClass) && is_string($actions)) {
                     // no actions listed so only match class
                     $targetClass = $actions;
-                    if ($split[0] == $targetClass)
+                    if ($split[0] == $targetClass) {
                         return true;
+                    }
                 } else {
                     foreach ($actions as $action) {
-                        if ($split[0] == $targetClass && $split[1] == $action)
+                        if ($split[0] == $targetClass && $split[1] == $action) {
                             return true;
+                        }
                     }
                 }
             }
+
             return false;
         });
 
         $scopes = [];
         $appliedSchemes = [];
-        if (!empty($securitySchemes)) {
+        if (! empty($securitySchemes)) {
             $middlewares = $this->route->gatherMiddleware();
             foreach ($middlewares as $middleware) {
-                if (!is_string($middleware))
+                if (! is_string($middleware)) {
                     continue;
+                }
 
                 foreach ($matchingMiddleware as $securityScheme => $middlewareToMatch) {
                     if (in_array($middleware, $middlewareToMatch)) {
@@ -158,17 +164,17 @@ class Route
             }
         }
 
-        if (!empty($scopes)) {
+        if (! empty($scopes)) {
             $matchingSchemes = collect($securitySchemes)
-                ->filter(fn(array $scheme) => ($scheme['scanForPassportScopes'] ?? true) && isset($scheme['flows']))
+                ->filter(fn (array $scheme) => ($scheme['scanForPassportScopes'] ?? true) && isset($scheme['flows']))
                 ->map(
-                    fn(array $scheme) => collect($scheme['flows'])
-                        ->map(fn(array $flow) => collect($flow['scopes'] ?? [])->keys())
+                    fn (array $scheme) => collect($scheme['flows'])
+                        ->map(fn (array $flow) => collect($flow['scopes'] ?? [])->keys())
                         ->flatten()
                         ->unique(),
                 )
-                ->map(fn(Collection $schemeScopes) => $schemeScopes->intersect($scopes))
-                ->filter(fn(Collection $overlap) => $overlap->count() > 0);
+                ->map(fn (Collection $schemeScopes) => $schemeScopes->intersect($scopes))
+                ->filter(fn (Collection $overlap) => $overlap->count() > 0);
 
             foreach ($matchingSchemes as $securityScheme => $overlap) {
                 $requirement = $appliedSchemes[$securityScheme] ?? SecurityRequirement::create(
@@ -192,7 +198,7 @@ class Route
         } elseif (count($segments) === 3) {
             [$resource, $relation, $action] = $segments;
         } else {
-            throw new \LogicException('Unable to handle action structure ' . $route->getName());
+            throw new \LogicException('Unable to handle action structure '.$route->getName());
         }
 
         $this->resource = $resource;
@@ -219,7 +225,7 @@ class Route
      */
     public function method(): string
     {
-        return collect($this->route->methods())->filter(fn($method) => $method !== 'HEAD')->first();
+        return collect($this->route->methods())->filter(fn ($method) => $method !== 'HEAD')->first();
     }
 
     public function schema(): Schema
@@ -265,7 +271,7 @@ class Route
     {
         $relation = $this->relation ? $this->schema()->relationship($this->relation) : null;
 
-        if ($relation !== null && !$relation instanceof Relation) {
+        if ($relation !== null && ! $relation instanceof Relation) {
             throw new \RuntimeException('Unexpected Type');
         }
 
@@ -303,7 +309,7 @@ class Route
     }
 
     /**
-     * @return \LaravelJsonApi\Contracts\Schema\Schema[]
+     * @return Schema[]
      */
     public function inversSchemas(): array
     {
@@ -393,11 +399,11 @@ class Route
     {
         $name = $route->getName();
 
-        if ($name === null || ! Str::startsWith($name, $server->name() . '.')) {
+        if ($name === null || ! Str::startsWith($name, $server->name().'.')) {
             return 'name is not prefixed with the server name';
         }
 
-        $segments = explode('.', Str::after($name, $server->name() . '.'));
+        $segments = explode('.', Str::after($name, $server->name().'.'));
 
         if (count($segments) < 2 || count($segments) > 3) {
             return sprintf('name has %d segment(s) after the server prefix, expected 2 or 3', count($segments));
@@ -431,6 +437,6 @@ class Route
         $domain = URL::to('/');
         $serverBasePath = str_replace($domain, '', $this->server->url());
 
-        $this->uri = str_replace($serverBasePath, '', '/' . $this->route->uri());
+        $this->uri = str_replace($serverBasePath, '', '/'.$this->route->uri());
     }
 }

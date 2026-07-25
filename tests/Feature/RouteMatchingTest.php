@@ -4,6 +4,7 @@ namespace LaravelJsonApi\OpenApiSpec\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route as RouteFacade;
+use LaravelJsonApi\Contracts\Server\Repository;
 use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\Route;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Database\Seeders\DatabaseSeeder;
@@ -29,7 +30,7 @@ class RouteMatchingTest extends TestCase
 
     private function server(): Server
     {
-        return app(\LaravelJsonApi\Contracts\Server\Repository::class)->server('v1');
+        return app(Repository::class)->server('v1');
     }
 
     private function routeNamed(string $name): \Illuminate\Routing\Route

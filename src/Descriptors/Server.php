@@ -36,35 +36,40 @@ class Server extends BaseDescriptor
     public function tags(): array
     {
         $tags = config("openapi.servers.{$this->generator->key()}.tags", []);
-        $assert = fn(mixed $assertion, string $error) => $assertion || throw new \Error($error);
+        $assert = fn (mixed $assertion, string $error) => $assertion || throw new \Error($error);
         $assertValidTag = function (array $tag) use ($assert) {
             $assert($tag['name'] ?? null, 'no tag name given');
         };
-        foreach ($tags as $tag)
+        foreach ($tags as $tag) {
             $assertValidTag($tag);
+        }
+
         return array_map(
             function (array $tag) use ($assert): Objects\Tag {
                 $out = Objects\Tag::create($tag['name'])->name($tag['name']);
-                if (isset($tag['description']))
+                if (isset($tag['description'])) {
                     $out = $out->description($tag['description']);
+                }
                 if (isset($tag['externalDocs'])) {
                     $assert(isset($tag['externalDocs']['url']), 'no external docs URL provided');
-                    $docs = Objects\ExternalDocs::create($tag['name'] . '.externalDocs')->url(
+                    $docs = Objects\ExternalDocs::create($tag['name'].'.externalDocs')->url(
                         $tag['externalDocs']['url'],
                     );
-                    if (isset($tag['externalDocs']['description']))
+                    if (isset($tag['externalDocs']['description'])) {
                         $docs = $docs->description($tag['externalDocs']['description']);
+                    }
 
                     $out = $out->externalDocs($docs);
                 }
 
                 // @todo: support OAS 3.2 enhanced tags properly
-                if (isset($tag['summary']) && !isset($tag['x-displayName']))
+                if (isset($tag['summary']) && ! isset($tag['x-displayName'])) {
                     $tag['x-displayName'] = $tag['summary'];
+                }
 
                 foreach (collect($tag)
-                    ->filter(fn($_, string $key) => Str::startsWith($key, 'x-'))
-                    ->mapWithKeys(fn(mixed $value, string $key) => [
+                    ->filter(fn ($_, string $key) => Str::startsWith($key, 'x-'))
+                    ->mapWithKeys(fn (mixed $value, string $key) => [
                         Str::substr($key, Str::length('x-')) => $value,
                     ]) as $k => $v) {
                     $out = $out->x($k, $v);
@@ -80,19 +85,20 @@ class Server extends BaseDescriptor
     public function securitySchemes(): array
     {
         $schemes = config("openapi.servers.{$this->generator->key()}.securitySchemes", []);
-        $assert = fn(bool $assertion, string $error) => $assertion || throw new \Error($error);
+        $assert = fn (bool $assertion, string $error) => $assertion || throw new \Error($error);
+
         return array_map(
             function (array $scheme, string $name) use ($assert): Objects\SecurityScheme {
                 $supportedTypes = ['oauth2', 'apiKey'];
                 $assert(
                     isset($scheme['type']) && in_array($scheme['type'], $supportedTypes),
                     'Only ['
-                    . implode(', ', $supportedTypes)
-                    . "] security schemes are currently supported. Please remove any non-matching schemes from the {$this->generator->key()} server in your config.",
+                    .implode(', ', $supportedTypes)
+                    ."] security schemes are currently supported. Please remove any non-matching schemes from the {$this->generator->key()} server in your config.",
                 );
                 if ($scheme['type'] === 'oauth2') {
                     $assert(
-                        isset($scheme['flows']) && !empty($scheme['flows']),
+                        isset($scheme['flows']) && ! empty($scheme['flows']),
                         "openapi.servers.{$this->generator->key()}.securitySchemes.{$name}.flows must be set.",
                     );
                     $flows = array_map(
@@ -101,25 +107,27 @@ class Server extends BaseDescriptor
                             foreach ($flow as $field => $value) {
                                 if ($field === 'authorizationUrl') {
                                     $flowSchema = $flowSchema->authorizationUrl($value);
-                                } else if ($field === 'tokenUrl') {
+                                } elseif ($field === 'tokenUrl') {
                                     $flowSchema = $flowSchema->tokenUrl($value);
-                                } else if ($field === 'refreshUrl') {
+                                } elseif ($field === 'refreshUrl') {
                                     $flowSchema = $flowSchema->refreshUrl($value);
-                                } else if ($field === 'scopes') {
+                                } elseif ($field === 'scopes') {
                                     $assert(
-                                        is_array($value) && !empty($value),
+                                        is_array($value) && ! empty($value),
                                         "openapi.servers.{$this->generator->key()}.securitySchemes.{$name}.flows.{$flowName}.{$field} must be a non-empty array",
                                     );
                                     $flowSchema = $flowSchema->scopes($value);
                                 }
                             }
+
                             return $flowSchema;
                         },
                         $scheme['flows'],
                         array_keys($scheme['flows']),
                     );
+
                     return Objects\SecurityScheme::oauth2($name)->flows(...$flows);
-                } else if ($scheme['type'] === 'apiKey') {
+                } elseif ($scheme['type'] === 'apiKey') {
                     $assert(
                         isset($scheme['in']),
                         "No 'in' key set for {$name} apiKey security scheme in the {$this->generator->key()} server in your config.",
@@ -128,11 +136,13 @@ class Server extends BaseDescriptor
                         isset($scheme['name']),
                         "No 'name' key set for {$name} apiKey security scheme in the {$this->generator->key()} server in your config.",
                     );
+
                     return Objects\SecurityScheme::create($name)
                         ->type(Objects\SecurityScheme::TYPE_API_KEY)
                         ->in($scheme['in'])
                         ->name($scheme['name']);
                 }
+
                 return Objects\SecurityScheme::create($name)->type($scheme['type']);
             },
             $schemes,

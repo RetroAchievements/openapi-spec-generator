@@ -3,7 +3,6 @@
 namespace LaravelJsonApi\OpenApiSpec\Filters;
 
 use Closure;
-use Error;
 use LaravelJsonApi\Eloquent\Contracts\Filter;
 use LaravelJsonApi\OpenApiSpec\Concerns\HasSchemaProperties;
 
@@ -14,11 +13,6 @@ class WithDescription implements Filter
 
     /**
      * WithDescription constructor.
-     *
-     * @param ?string|closure():string $description
-     * @param ?mixed|array<mixed, mixed> $example
-     * @param ?mixed $default
-     * @param ?Filter $filter
      */
     public function __construct(
         private ?string $description = null,
@@ -29,12 +23,6 @@ class WithDescription implements Filter
 
     /**
      * WithDescription.
-     *
-     * @param ?string $description
-     * @param ?mixed|array<mixed, mixed> $example
-     * @param ?mixed $default
-     * @param ?Filter $filter
-     * @return self
      */
     public static function make(
         ?string $description = null,
@@ -51,18 +39,19 @@ class WithDescription implements Filter
     public function withFilter(Filter $filter): self
     {
         $this->filter = $filter;
+
         return $this;
     }
 
     /**
      * Get the description as a string, or returns null if none set.
-     *
-     * @return ?string
      */
     public function getDescription(): ?string
     {
-        if ($this->description instanceof Closure)
+        if ($this->description instanceof Closure) {
             return ($this->description)();
+        }
+
         return $this->description;
     }
 
@@ -73,15 +62,18 @@ class WithDescription implements Filter
      */
     public function getExamples(): array
     {
-        if (!$this->example)
+        if (! $this->example) {
             return [];
+        }
         $example = $this->example;
-        if ($this->example instanceof Closure)
+        if ($this->example instanceof Closure) {
             $example = ($this->example)();
-        if (!is_array($example))
+        }
+        if (! is_array($example)) {
             $example = [$example];
+        }
 
-        return array_map(fn(mixed $ex) => $this->formatExample($ex), $example);
+        return array_map(fn (mixed $ex) => $this->formatExample($ex), $example);
     }
 
     /**
@@ -92,10 +84,13 @@ class WithDescription implements Filter
      */
     public function getDefault(): mixed
     {
-        if (!$this->default)
+        if (! $this->default) {
             return '';
-        if ($this->default instanceof Closure)
+        }
+        if ($this->default instanceof Closure) {
             return ($this->default)();
+        }
+
         return $this->default;
     }
 
@@ -114,9 +109,10 @@ class WithDescription implements Filter
         return $this->filter->key();
     }
 
-    function __call($method, $args)
+    public function __call($method, $args)
     {
         $out = call_user_func_array([$this->filter, $method], $args);
+
         return $out;
     }
 }

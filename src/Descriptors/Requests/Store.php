@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Requests;
 
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\MediaType;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\RequestBody;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
@@ -12,7 +13,7 @@ class Store extends RequestDescriptor
     /**
      * {@inheritDoc}
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function request(): RequestBody
     {

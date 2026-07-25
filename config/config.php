@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Routing\Controller;
+
 /*
  * OpenAPI Generator configuration
  */
@@ -22,7 +24,7 @@ return [
             'securitySchemes' => [ // optional, identical shape to OpenAPI .components.securitySchemes, except two extra parameters:
                 'OAuth2' => [
                     'middleware' => ['auth:api'], // routes with any of these middleware attached will require this scheme.
-                    'controllers' => [\Illuminate\Routing\Controller::class => ['index', 'show']], // optional, if given acts as an additional requirement for the auth type to match, where the routes, controller must be an instance of the class and the route method must match (in this example, index() or show()).
+                    'controllers' => [Controller::class => ['index', 'show']], // optional, if given acts as an additional requirement for the auth type to match, where the routes, controller must be an instance of the class and the route method must match (in this example, index() or show()).
                     'scanForPassportScopes' => true, // Defaults to true. Scans for Passport CheckToken/CheckTokenForAnyScope middleware and uses those scopes.
                     'type' => 'oauth2',
                     'flows' => [

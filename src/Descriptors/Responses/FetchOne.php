@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Schema\Schema as SchemaDescriptor;
 
@@ -12,7 +13,7 @@ class FetchOne extends ResponseDescriptor
     /**
      * {@inheritDoc}
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function response(): array
     {
@@ -23,7 +24,7 @@ class FetchOne extends ResponseDescriptor
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function data(): Schema
     {
@@ -31,7 +32,7 @@ class FetchOne extends ResponseDescriptor
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function included(): ?Schema
     {

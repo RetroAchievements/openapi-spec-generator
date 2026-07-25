@@ -50,7 +50,7 @@ class QueryParameterTest extends TestCase
     {
         $this->assertNotEmpty(
             array_filter($names, fn (string $name) => str_starts_with($name, $prefix)),
-            "Expected a parameter starting with [{$prefix}], got: " . implode(', ', $names),
+            "Expected a parameter starting with [{$prefix}], got: ".implode(', ', $names),
         );
     }
 
@@ -58,7 +58,7 @@ class QueryParameterTest extends TestCase
     {
         $this->assertEmpty(
             array_filter($names, fn (string $name) => str_starts_with($name, $prefix)),
-            "Expected no parameter starting with [{$prefix}], got: " . implode(', ', $names),
+            "Expected no parameter starting with [{$prefix}], got: ".implode(', ', $names),
         );
     }
 
@@ -189,7 +189,7 @@ class QueryParameterTest extends TestCase
         $this->assertCount(
             1,
             array_filter($names, fn (string $name) => $name === 'filter[name]'),
-            'Expected the colliding filter to be emitted exactly once: ' . implode(', ', $names),
+            'Expected the colliding filter to be emitted exactly once: '.implode(', ', $names),
         );
     }
 

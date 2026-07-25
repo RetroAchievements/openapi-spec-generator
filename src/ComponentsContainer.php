@@ -66,7 +66,7 @@ class ComponentsContainer
         $this->responses[$response->objectId] = $response;
 
         return Response::ref(
-            '#/components/responses/' . $response->objectId,
+            '#/components/responses/'.$response->objectId,
             $response->objectId,
         )->statusCode($response->statusCode);
     }
@@ -78,7 +78,7 @@ class ComponentsContainer
 
     public function components(?array $securitySchemes = []): Components
     {
-        $schemas = collect($this->schemas)->sortBy(fn(BaseObject $schema) => $schema->objectId)->toArray();
+        $schemas = collect($this->schemas)->sortBy(fn (BaseObject $schema) => $schema->objectId)->toArray();
 
         return Components::create()
             ->responses(...$this->responses)
@@ -113,6 +113,6 @@ class ComponentsContainer
                 exit(get_class($object));
         }
 
-        return $object::ref($baseRef . $object->objectId, $object->objectId);
+        return $object::ref($baseRef.$object->objectId, $object->objectId);
     }
 }

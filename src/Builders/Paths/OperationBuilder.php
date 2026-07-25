@@ -4,6 +4,7 @@ namespace LaravelJsonApi\OpenApiSpec\Builders\Paths;
 
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Operation;
 use LaravelJsonApi\Laravel\Http\Controllers;
+use LaravelJsonApi\OpenApiSpec\Attributes\WithDescription;
 use LaravelJsonApi\OpenApiSpec\Builders\Builder;
 use LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation\ParameterBuilder;
 use LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation\RequestBodyBuilder;
@@ -41,8 +42,7 @@ class OperationBuilder extends Builder
         Controllers\Actions\DetachRelationship::class => Descriptors\Actions\Relationship\Detach::class,
         Controllers\Actions\FetchRelationship::class => Descriptors\Actions\Relationship\Fetch::class,
         Controllers\Actions\UpdateRelationship::class => Descriptors\Actions\Relationship\Update::class,
-        \LaravelJsonApi\OpenApiSpec\Attributes\WithDescription::class =>
-            Descriptors\Actions\BasicFetchWithDescription::class,
+        WithDescription::class => Descriptors\Actions\BasicFetchWithDescription::class,
     ];
 
     public function __construct(Generator $generator, ComponentsContainer $components)

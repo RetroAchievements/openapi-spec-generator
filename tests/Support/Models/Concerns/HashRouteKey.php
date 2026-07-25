@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace LaravelJsonApi\OpenApiSpec\Tests\Support\Models\Concerns;
 
+use Illuminate\Database\Eloquent\Model;
 use Vinkla\Hashids\Facades\Hashids;
 
 trait HashRouteKey
@@ -41,7 +42,7 @@ trait HashRouteKey
      *
      * @param  mixed  $value
      * @param  string|null  $field
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = null)
     {
