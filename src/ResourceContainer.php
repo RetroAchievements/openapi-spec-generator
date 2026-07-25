@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec;
 
+use Illuminate\Support\Collection;
 use LaravelJsonApi\Contracts\Schema\Schema;
 use LaravelJsonApi\Contracts\Server\Server;
 use LaravelJsonApi\Contracts\Store\QueriesAll;
@@ -11,7 +12,7 @@ class ResourceContainer
 {
     protected Server $server;
 
-    /** @var \Illuminate\Support\Collection[] */
+    /** @var Collection[] */
     protected array $resources = [];
 
     public function __construct(Server $server)

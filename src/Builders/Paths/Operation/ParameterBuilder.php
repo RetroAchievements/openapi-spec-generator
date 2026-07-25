@@ -5,6 +5,7 @@ namespace LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Example;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Parameter;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema as OASchema;
+use LaravelJsonApi\Contracts\Schema\Filter;
 use LaravelJsonApi\Eloquent\Fields\Relations\ToMany;
 use LaravelJsonApi\OpenApiSpec\Builders\Builder;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Schema\Schema;
@@ -13,7 +14,7 @@ use LaravelJsonApi\OpenApiSpec\Route;
 class ParameterBuilder extends Builder
 {
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Parameter[]
+     * @return Parameter[]
      */
     public function build(Route $route): array
     {
@@ -27,7 +28,7 @@ class ParameterBuilder extends Builder
          * A single-resource fetch accepts the parameters that shape how a resource
          * is rendered (`fields`, `include`) but not those that select among many
          * of them (`page`, `sort`, `filter`).
-         * 
+         *
          * Relationship routes must be detected by whether they carry a relation, not
          * by their action name. The action is taken from the last segment of the
          * route name, so a relationships endpoint reports `show` exactly like a
@@ -82,9 +83,9 @@ class ParameterBuilder extends Builder
      * case the relation's version is the one that actually applies and emitting both
      * would produce a duplicate parameter.
      *
-     * @param iterable<\LaravelJsonApi\Contracts\Schema\Filter> $schemaFilters
-     * @param iterable<\LaravelJsonApi\Contracts\Schema\Filter> $relationFilters
-     * @return \LaravelJsonApi\Contracts\Schema\Filter[]
+     * @param  iterable<Filter>  $schemaFilters
+     * @param  iterable<Filter>  $relationFilters
+     * @return Filter[]
      */
     private static function mergeFilters(iterable $schemaFilters, iterable $relationFilters): array
     {
@@ -109,7 +110,7 @@ class ParameterBuilder extends Builder
      * sorted as comments, so deriving those from the post schema documents fields
      * that do not exist on the response.
      *
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Parameter[]
+     * @return Parameter[]
      */
     protected function relationParameters(Route $route, Schema $schemaDescriptor): array
     {

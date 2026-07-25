@@ -54,8 +54,10 @@ class WhereIn extends FilterDescriptor
     protected function description(): string
     {
         $key = $this->filter->key();
-        if ($key[-1] != 's')
+        if ($key[-1] != 's') {
             $key .= 's';
+        }
+
         return $this->filter instanceof WhereNotIn || $this->filter instanceof WherePivotNotIn
             ? "A list of {$key} to exclude by."
             : "A list of {$key} to filter by.";

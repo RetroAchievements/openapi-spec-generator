@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec;
 
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\ValidationException;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Yaml\Yaml;
 
@@ -23,7 +24,7 @@ class OpenApiGenerator
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\ValidationException
+     * @throws ValidationException
      */
     public function generate(string $serverKey, string $format = 'yaml'): string
     {

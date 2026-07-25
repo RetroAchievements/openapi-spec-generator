@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use LaravelJsonApi\Eloquent\Fields\Relations\ToMany;
 
@@ -12,8 +13,8 @@ class FetchRelation extends ResponseDescriptor
     /**
      * {@inheritDoc}
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @todo Implement
      */
@@ -26,7 +27,7 @@ class FetchRelation extends ResponseDescriptor
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function data(): Schema
     {

@@ -3,7 +3,9 @@
 namespace LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation;
 
 use GoldSpecDigital\ObjectOrientedOAS\Contracts\SchemaContract;
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\OneOf;
+use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use Illuminate\Support\Str;
 use LaravelJsonApi\Contracts\Schema\Schema as JASchema;
 use LaravelJsonApi\OpenApiSpec\Builders\Builder;
@@ -24,9 +26,9 @@ class SchemaBuilder extends Builder
     }
 
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Schema
+     * @return Schema
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @todo Use a schema descriptor container (Container should allow customs
      *   via attribute)
@@ -51,7 +53,7 @@ class SchemaBuilder extends Builder
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function buildResponseSchema(
         Route $route,
@@ -104,8 +106,8 @@ class SchemaBuilder extends Builder
                     $schema = $descriptor->fetch($route->schema(), $objectId, $route->resource(), $route->name(true));
                     break;
 
-                /*default:
-                 * throw new \Error("Unknown method '${method}'");*/
+                    /*default:
+                     * throw new \Error("Unknown method '${method}'");*/
             }
         }
 
@@ -113,7 +115,7 @@ class SchemaBuilder extends Builder
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function buildRequestSchema(
         Route $route,
@@ -133,7 +135,7 @@ class SchemaBuilder extends Builder
                     $schema = $descriptor->detachRelationship($route);
                     break;
                 default:
-                    exit('Request ' . $method); // @todo Add proper Exception
+                    exit('Request '.$method); // @todo Add proper Exception
             }
         } else {
             switch ($method) {
@@ -144,7 +146,7 @@ class SchemaBuilder extends Builder
                     $schema = $descriptor->update($route);
                     break;
                 default:
-                    exit('Request ' . $method); // @todo Add proper Exception
+                    exit('Request '.$method); // @todo Add proper Exception
             }
         }
 

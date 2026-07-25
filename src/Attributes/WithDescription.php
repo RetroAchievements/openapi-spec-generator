@@ -12,8 +12,7 @@ class WithDescription
     /**
      * WithDescription constructor.
      *
-     * @param array|class-string<Schema>|closure():array $responseClassOrExample
-     * @param ?string|closure():string $description
+     * @param  array|class-string<Schema>|Closure():array  $responseClassOrExample
      */
     public function __construct(
         private mixed $responseClassOrExample,
@@ -22,13 +21,13 @@ class WithDescription
 
     /**
      * Get the description as a string, or returns null if none set.
-     *
-     * @return ?string
      */
     public function getDescription(): ?string
     {
-        if ($this->description instanceof Closure)
+        if ($this->description instanceof Closure) {
             return ($this->description)();
+        }
+
         return $this->description;
     }
 
@@ -37,8 +36,10 @@ class WithDescription
      */
     public function getResponseClassOrExample(): mixed
     {
-        if ($this->responseClassOrExample instanceof Closure)
+        if ($this->responseClassOrExample instanceof Closure) {
             return ($this->responseClassOrExample)();
+        }
+
         return $this->responseClassOrExample;
     }
 }

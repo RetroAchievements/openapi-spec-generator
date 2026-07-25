@@ -25,7 +25,7 @@ class PathsBuilder extends Builder
     }
 
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\PathItem[]
+     * @return PathItem[]
      */
     /**
      * Routes that exist but are absent from the document, with the reason.
@@ -52,7 +52,7 @@ class PathsBuilder extends Builder
     }
 
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\PathItem[]
+     * @return PathItem[]
      */
     public function build(): array
     {
@@ -68,13 +68,13 @@ class PathsBuilder extends Builder
                  * Every unrelated route in the application fails the name check, and
                  * listing all of them would bury the ones that matter.
                  */
-                if ($reason !== null && str_starts_with($route->getName() ?? '', $server->name() . '.')) {
+                if ($reason !== null && str_starts_with($route->getName() ?? '', $server->name().'.')) {
                     $this->skip($route, $reason);
                 }
 
                 return $reason === null;
             })
-            ->map(fn(IlluminateRoute $route) => new SpecRoute($server, $route))
+            ->map(fn (IlluminateRoute $route) => new SpecRoute($server, $route))
             ->mapToGroups(function (SpecRoute $route) {
                 return [$route->uri() => $route];
             })
@@ -94,7 +94,7 @@ class PathsBuilder extends Builder
                     }
 
                     return $operation;
-                })->filter(fn($val) => $val !== null);
+                })->filter(fn ($val) => $val !== null);
 
                 if ($operations->isEmpty()) {
                     return null;
@@ -102,7 +102,7 @@ class PathsBuilder extends Builder
 
                 return PathItem::create()->route($uri)->operations(...$operations->toArray());
             })
-            ->filter(fn($val) => $val !== null)
+            ->filter(fn ($val) => $val !== null)
             ->toArray();
     }
 }

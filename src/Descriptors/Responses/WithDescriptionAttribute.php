@@ -2,8 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 
-use Carbon\Carbon;
-use Error;
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use Illuminate\Support\Collection;
 use LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation\SchemaBuilder;
@@ -36,7 +35,7 @@ class WithDescriptionAttribute extends ResponseDescriptor
     /**
      * {@inheritDoc}
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function response(): array
     {

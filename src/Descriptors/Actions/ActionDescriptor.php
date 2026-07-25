@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Actions;
 
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Operation;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Parameter;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\RequestBody;
@@ -43,8 +44,8 @@ abstract class ActionDescriptor implements ActionDescriptorContract
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function action(): Operation
     {
@@ -82,7 +83,7 @@ abstract class ActionDescriptor implements ActionDescriptorContract
         /** @var DescribesEndpoints $schema */
         $schema = $this->route->schema();
 
-        if (!$schema instanceof DescribesEndpoints) {
+        if (! $schema instanceof DescribesEndpoints) {
             return '';
         }
 

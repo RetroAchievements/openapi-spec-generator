@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\Api\V1;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Response;
 use LaravelJsonApi\Core\Responses\DataResponse;
@@ -43,7 +44,7 @@ class PostController extends Controller
     use Actions\UpdateRelationship;
 
     /**
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function purge(): Response
     {
@@ -58,7 +59,7 @@ class PostController extends Controller
      * Publish a post.
      *
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function publish(PostSchema $schema, PostQuery $query, Post $post): Responsable
     {

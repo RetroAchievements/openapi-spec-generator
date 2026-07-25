@@ -3,6 +3,7 @@
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 
 use GoldSpecDigital\ObjectOrientedOAS\Contracts\SchemaContract;
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\MediaType;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Response;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
@@ -40,12 +41,12 @@ abstract class ResponseDescriptor extends Descriptor implements ResponseDescript
     }
 
     /**
-     * @return \GoldSpecDigital\ObjectOrientedOAS\Objects\Response[]
+     * @return Response[]
      */
     abstract public function response(): array;
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function ok(): Response
     {
@@ -64,10 +65,10 @@ abstract class ResponseDescriptor extends Descriptor implements ResponseDescript
     protected function defaults(): array
     {
         $except = [];
-        if (!$this->hasId) {
+        if (! $this->hasId) {
             $except[] = '404';
         }
-        if (!$this->validates) {
+        if (! $this->validates) {
             $except[] = '422';
         }
 
@@ -84,7 +85,7 @@ abstract class ResponseDescriptor extends Descriptor implements ResponseDescript
     protected function description(): string
     {
         if (! $this->route->isRelation()) {
-            return ucfirst($this->route->action()) . ' ' . $this->route->name();
+            return ucfirst($this->route->action()).' '.$this->route->name();
         }
 
         $parent = $this->route->name(true);

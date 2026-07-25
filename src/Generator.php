@@ -40,7 +40,7 @@ class Generator
 
         $this->infoBuilder = new InfoBuilder($this);
         $this->serverBuilder = new ServerBuilder($this);
-        $this->components = new ComponentsContainer();
+        $this->components = new ComponentsContainer;
         $this->resources = new ResourceContainer($this->server);
         $this->pathsBuilder = new PathsBuilder($this, $this->components);
     }
@@ -48,6 +48,7 @@ class Generator
     public function generate(): OpenApi
     {
         $server = new LaravelJsonApiServer($this);
+
         return OpenApi::create()
             ->openapi(OpenApi::OPENAPI_3_0_2)
             ->info($this->infoBuilder->build())

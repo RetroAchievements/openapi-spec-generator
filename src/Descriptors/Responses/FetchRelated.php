@@ -3,6 +3,7 @@
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 
 use GoldSpecDigital\ObjectOrientedOAS\Contracts\SchemaContract;
+use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use LaravelJsonApi\Eloquent\Fields\Relations\ToMany;
 
@@ -13,7 +14,7 @@ class FetchRelated extends ResponseDescriptor
     /**
      * {@inheritDoc}
      *
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function response(): array
     {
@@ -24,7 +25,7 @@ class FetchRelated extends ResponseDescriptor
     }
 
     /**
-     * @throws \GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function data(): SchemaContract
     {

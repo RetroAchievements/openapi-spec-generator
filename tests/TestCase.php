@@ -3,8 +3,12 @@
 namespace LaravelJsonApi\OpenApiSpec\Tests;
 
 use Illuminate\Support\Facades\App;
+use LaravelJsonApi\Core\Facades\JsonApi;
+use LaravelJsonApi\Laravel\Facades\JsonApiRoute;
 use LaravelJsonApi\Laravel\Routing\Registrar;
 use LaravelJsonApi\Laravel\Routing\ResourceRegistrar;
+use LaravelJsonApi\Laravel\ServiceProvider;
+use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\OpenApiServiceProvider;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\HealthController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostStatsController;
@@ -78,7 +82,7 @@ abstract class TestCase extends BaseTestCase
     {
         return [
             \LaravelJsonApi\Encoder\Neomerx\ServiceProvider::class,
-            \LaravelJsonApi\Laravel\ServiceProvider::class,
+            ServiceProvider::class,
             OpenApiServiceProvider::class,
             HashidsServiceProvider::class,
         ];
@@ -87,9 +91,9 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageAliases($app)
     {
         return [
-            'OpenApiGenerator' => \LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade::class,
-            'JsonApi' => \LaravelJsonApi\Core\Facades\JsonApi::class,
-            'JsonApiRoute' => \LaravelJsonApi\Laravel\Facades\JsonApiRoute::class,
+            'OpenApiGenerator' => GeneratorFacade::class,
+            'JsonApi' => JsonApi::class,
+            'JsonApiRoute' => JsonApiRoute::class,
         ];
     }
 }
