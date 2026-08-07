@@ -35,6 +35,15 @@ class ParameterBuilder extends Builder
          * plain resource fetch does, and matching on the name alone silently
          * resolves it against the wrong schema.
          */
+        /*
+         * A route that describes itself has no schema, so there is nothing to
+         * derive query parameters from. Its path parameters still have to be
+         * declared, because OpenAPI refuses a path that holds an undeclared one.
+         */
+        if ($route->action() === Route::CUSTOM_ACTION) {
+            return self::pathParameters($route);
+        }
+
         $parameters = $route->isRelation()
             ? $this->relationParameters($route, $schemaDescriptor)
             : match ($route->action()) {
@@ -74,6 +83,36 @@ class ParameterBuilder extends Builder
         }
 
         return $parameters;
+    }
+
+    /**
+     * The path parameters that a route's URI holds.
+     *
+     * Laravel writes a path parameter as `{name}`, and marks an optional one with
+     * `?`. A parameter in a path is always required in OpenAPI, so an optional one
+     * belongs to a different path and is not declared here.
+     *
+     * The type comes from the constraint on the route, because that is the only
+     * place a custom route states one.
+     *
+     * @return Parameter[]
+     */
+    private static function pathParameters(Route $route): array
+    {
+        preg_match_all('/\{(\w+)}/', $route->route()->uri(), $matches);
+
+        return array_map(
+            static function (string $name) use ($route): Parameter {
+                $pattern = $route->route()->wheres[$name] ?? null;
+
+                return Parameter::path($name)
+                    ->name($name)
+                    ->required(true)
+                    ->allowEmptyValue(false)
+                    ->schema($pattern === '[0-9]+' ? OASchema::integer() : OASchema::string());
+            },
+            $matches[1],
+        );
     }
 
     /**
