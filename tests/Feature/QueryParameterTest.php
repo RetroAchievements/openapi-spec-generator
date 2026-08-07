@@ -256,4 +256,29 @@ class QueryParameterTest extends TestCase
 
         $this->assertEquals($enumFor('/posts'), $enumFor('/posts/{post}'));
     }
+
+    private function schemaFor(string $path, string $parameter): array
+    {
+        $found = collect($this->document['paths'][$path]['get']['parameters'])
+            ->firstWhere('name', $parameter);
+
+        $this->assertNotNull($found, "Parameter [{$parameter}] is missing from [{$path}].");
+
+        return $found['schema'];
+    }
+
+    public function test_a_scope_filter_taking_a_value_is_documented_as_a_string(): void
+    {
+        $this->assertEquals('string', $this->schemaFor('/posts', 'filter[bySlug]')['type']);
+    }
+
+    public function test_a_scope_filter_declared_as_a_flag_is_documented_as_a_boolean(): void
+    {
+        $this->assertEquals('boolean', $this->schemaFor('/posts', 'filter[published]')['type']);
+    }
+
+    public function test_a_trashed_filter_remains_a_boolean(): void
+    {
+        $this->assertEquals('boolean', $this->schemaFor('/posts', 'filter[trashed]')['type']);
+    }
 }

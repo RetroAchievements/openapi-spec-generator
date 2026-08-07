@@ -110,6 +110,7 @@ class PostSchema extends Schema implements DescribesEndpoints
         return [
             WhereIdIn::make($this)->delimiter(','),
             Scope::make('published', 'wherePublished')->asBoolean(),
+            Scope::make('bySlug', 'whereSlug'),
             Where::make('slug')->singular(),
             OnlyTrashed::make('trashed'),
         ];
