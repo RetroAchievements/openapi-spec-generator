@@ -12,12 +12,13 @@ use LaravelJsonApi\Contracts\Schema\PolymorphicRelation;
 use LaravelJsonApi\Contracts\Schema\Schema;
 use LaravelJsonApi\Contracts\Server\Server;
 use LaravelJsonApi\Eloquent\Fields\Relations\Relation;
+use LaravelJsonApi\OpenApiSpec\Attributes\WithDescription;
 
 class Route
 {
     protected Server $server;
 
-    protected Schema $schema;
+    protected ?Schema $schema = null;
 
     protected IlluminateRoute $route;
 
@@ -51,6 +52,13 @@ class Route
     // Security schemes applied to this route. Scheme application is guessed from which scopes lie within which schemes.
     // @var SecurityRequirement[] $securitySchemes
     protected array $securitySchemes = [];
+
+    /**
+     * The action of a route that an attribute describes.
+     *
+     * A schema does not describe this route.
+     */
+    public const CUSTOM_ACTION = 'custom';
 
     /**
      * @return string[]
@@ -164,6 +172,25 @@ class Route
         $segments = array_slice($segments, array_search($this->server->name(), $segments) + 1);
 
         $this->operationId = collect($segments)->join('.');
+
+        [$this->controller, $this->method] = self::callableFor($route);
+
+        /**
+         * An attribute describes this route. It is not a resource route. It has
+         * no schema. Its name has no fixed shape. Do not do the resource steps
+         * below.
+         */
+        if (self::describedByAttribute($route)) {
+            $this->schema = null;
+            $this->resource = $segments[0] ?? $this->server->name();
+            $this->relation = null;
+            $this->action = self::CUSTOM_ACTION;
+
+            $this->setUriForRoute();
+
+            return;
+        }
+
         $relation = null;
 
         if (count($segments) === 2) {
@@ -186,11 +213,39 @@ class Route
         }
 
         $this->setUriForRoute();
+    }
 
-        [$controller, $method] = explode('@', $this->route->getActionName(), 2);
+    /**
+     * Gets the controller and the method of a route.
+     *
+     * An invokable controller has no method part in its action name. The method
+     * of such a controller is `__invoke`.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private static function callableFor(IlluminateRoute $route): array
+    {
+        $action = $route->getActionName();
 
-        $this->controller = $controller;
-        $this->method = $method;
+        return str_contains($action, '@')
+            ? explode('@', $action, 2)
+            : [$action, '__invoke'];
+    }
+
+    /**
+     * Tells you if the controller method of the route has a description attribute.
+     */
+    private static function describedByAttribute(IlluminateRoute $route): bool
+    {
+        [$class, $method] = self::callableFor($route);
+
+        try {
+            $reflection = new \ReflectionMethod($class, $method);
+        } catch (\ReflectionException) {
+            return false;
+        }
+
+        return $reflection->getAttributes(WithDescription::class) !== [];
     }
 
     /**
@@ -201,7 +256,7 @@ class Route
         return collect($this->route->methods())->filter(fn ($method) => $method !== 'HEAD')->first();
     }
 
-    public function schema(): Schema
+    public function schema(): ?Schema
     {
         return $this->schema;
     }
@@ -374,6 +429,15 @@ class Route
 
         if ($name === null || ! Str::startsWith($name, $server->name().'.')) {
             return 'name is not prefixed with the server name';
+        }
+
+        /*
+         * A route that describes itself does not need the checks below. The
+         * checks show that a schema can describe a route. This route does not
+         * use a schema.
+         */
+        if (self::describedByAttribute($route)) {
+            return null;
         }
 
         $segments = explode('.', Str::after($name, $server->name().'.'));
