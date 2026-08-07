@@ -49,6 +49,11 @@ abstract class TestCase extends BaseTestCase
             // This route describes itself. It is not a resource. It is documented.
             $router->get('v1/posts/summary', PostSummaryController::class)->name('v1.posts.summary');
 
+            // Holds a path parameter, which OpenAPI requires the path to declare.
+            $router->get('v1/posts/{postId}/summary', PostSummaryController::class)
+                ->whereNumber('postId')
+                ->name('v1.posts.scoped-summary');
+
             /** @var Registrar $jsonApiRoute */
             $jsonApiRoute = App::make(Registrar::class);
 

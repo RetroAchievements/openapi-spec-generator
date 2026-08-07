@@ -83,6 +83,34 @@ class CustomRouteTest extends TestCase
         $this->assertContains('v1.posts.stats', $skipped);
     }
 
+    /**
+     * OpenAPI refuses a path that holds a parameter it does not declare. A custom
+     * route has no schema, so the declaration must come from the URI.
+     */
+    public function test_it_declares_the_path_parameters_of_a_custom_route(): void
+    {
+        $parameters = $this->document['paths']['/posts/{postId}/summary']['get']['parameters'];
+
+        $this->assertEquals(['postId'], array_column($parameters, 'name'));
+        $this->assertTrue($parameters[0]['required']);
+    }
+
+    /**
+     * A numeric constraint on the route is the only place a custom route states a
+     * type. The documented type follows it.
+     */
+    public function test_it_types_a_numeric_path_parameter_as_an_integer(): void
+    {
+        $parameters = $this->document['paths']['/posts/{postId}/summary']['get']['parameters'];
+
+        $this->assertEquals('integer', $parameters[0]['schema']['type']);
+    }
+
+    public function test_a_custom_route_without_path_parameters_declares_none(): void
+    {
+        $this->assertEmpty($this->document['paths']['/posts/summary']['get']['parameters'] ?? []);
+    }
+
     public function test_resource_routes_are_unaffected(): void
     {
         $paths = $this->document['paths'];

@@ -3,16 +3,19 @@
 namespace LaravelJsonApi\OpenApiSpec\Attributes;
 
 use Closure;
-use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 
-// WithDescription tags a route method with a description and a response Schema or an example as an array, used for generating OpenAPI docs.
+// WithDescription documents a route that no schema describes. It names the class
+// that the route returns, or gives an example of the response.
 #[\Attribute]
 class WithDescription
 {
     /**
      * WithDescription constructor.
      *
-     * @param  array|class-string<Schema>|Closure():array  $responseClassOrExample
+     * @param  array|class-string|Closure():array  $responseClassOrExample  The class
+     *                                                                      that the route returns, or an example of its response. Prefer a
+     *                                                                      class. A class declares nullability and element types. An example
+     *                                                                      cannot declare either.
      */
     public function __construct(
         private mixed $responseClassOrExample,
@@ -31,8 +34,10 @@ class WithDescription
         return $this->description;
     }
 
-    /* Returns the response class, or an example if provided instead.
-     * @return array|Schema
+    /**
+     * Returns the response class, or an example if one was given instead.
+     *
+     * @return array|class-string
      */
     public function getResponseClassOrExample(): mixed
     {
