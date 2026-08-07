@@ -12,6 +12,7 @@ use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\OpenApiServiceProvider;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\HealthController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostStatsController;
+use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostSummaryController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\JsonApi\V1\Server;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Vinkla\Hashids\HashidsServiceProvider;
@@ -44,6 +45,9 @@ abstract class TestCase extends BaseTestCase
              */
             $router->get('v1/health', [HealthController::class, 'check'])->name('v1.health');
             $router->get('v1/posts/stats', PostStatsController::class)->name('v1.posts.stats');
+
+            // This route describes itself. It is not a resource. It is documented.
+            $router->get('v1/posts/summary', PostSummaryController::class)->name('v1.posts.summary');
 
             /** @var Registrar $jsonApiRoute */
             $jsonApiRoute = App::make(Registrar::class);

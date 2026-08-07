@@ -18,6 +18,7 @@ use LaravelJsonApi\OpenApiSpec\Concerns\ResolvesDescriptionAttributeFromRoute;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Actions\ActionDescriptor;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Responses;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Responses\WithDescriptionAttribute;
+use LaravelJsonApi\OpenApiSpec\Descriptors\Responses\WithDescriptionClass;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Server;
 use LaravelJsonApi\OpenApiSpec\Generator;
 use LaravelJsonApi\OpenApiSpec\Route;
@@ -93,6 +94,23 @@ class ResponseBuilder extends Builder
         if ($class === WithDescription::class) {
             $description = $this->descriptionFromRoute($route);
             $class = $description->getResponseClassOrExample();
+
+            /**
+             * A class gives the type of each property. It also gives nullability
+             * and element types. An example gives one value only. It cannot give
+             * this data. Use a class if there is one.
+             */
+            if (is_string($class) && class_exists($class)) {
+                return new WithDescriptionClass(
+                    $this->generator,
+                    $route,
+                    $this->schemaBuilder,
+                    $this->defaults,
+                    $class,
+                    $description->getDescription(),
+                );
+            }
+
             if (is_array($class)) {
                 return new WithDescriptionAttribute(
                     $this->generator,
