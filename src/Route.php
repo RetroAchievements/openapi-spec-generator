@@ -52,52 +52,18 @@ class Route
     // @var SecurityRequirement[] $securitySchemes
     protected array $securitySchemes = [];
 
-    private const PASSPORT_SCOPE_MIDDLEWARE = [
-        'Laravel\Passport\Http\Middleware\CheckTokenForAnyScope',
-        'Laravel\Passport\Http\Middleware\CheckToken',
-    ];
-
-    /**
-     * Resolves the OAuth scopes a middleware string requires.
-     *
-     * @var null|callable(string): string[]
-     */
-    private static $scopeResolver = null;
-
-    /**
-     * Teach the generator how this application declares required scopes.
-     *
-     * Scope enforcement is not standardized. An application using its own
-     * middleware instead of Passport's is invisible to the default scan, and its
-     * endpoints are then documented as requiring no scope at all, which is worse
-     * than documenting nothing. Registering a resolver is the single point at
-     * which that can be corrected.
-     *
-     * @param  null|callable(string): string[]  $resolver  Receives one middleware
-     *                                                     string and returns the scopes it requires. Null restores the default.
-     */
-    public static function resolveScopesUsing(?callable $resolver): void
-    {
-        self::$scopeResolver = $resolver;
-    }
-
     /**
      * @return string[]
      */
-    private static function scopesFor(string $middleware): array
+    private static function scopeCandidates(string $middleware): array
     {
-        if (self::$scopeResolver !== null) {
-            return (self::$scopeResolver)($middleware);
+        $separator = strpos($middleware, ':');
+
+        if ($separator === false) {
+            return [];
         }
 
-        foreach (self::PASSPORT_SCOPE_MIDDLEWARE as $passportMiddleware) {
-            if (str_starts_with($middleware, $passportMiddleware.':')) {
-                // TODO maybe parse like a CSV in case scopes have commas
-                return explode(',', substr($middleware, strlen($passportMiddleware) + 1));
-            }
-        }
-
-        return [];
+        return explode(',', substr($middleware, $separator + 1));
     }
 
     /**
@@ -160,13 +126,20 @@ class Route
                     }
                 }
 
-                $scopes = array_merge($scopes, self::scopesFor($middleware));
+                $scopes = array_merge($scopes, self::scopeCandidates($middleware));
             }
         }
 
         if (! empty($scopes)) {
             $matchingSchemes = collect($securitySchemes)
-                ->filter(fn (array $scheme) => ($scheme['scanForPassportScopes'] ?? true) && isset($scheme['flows']))
+                /*
+                 * `scanForPassportScopes` is the former name, kept working because
+                 * it is published configuration. Scanning is no longer limited to
+                 * Passport, so the key now reads as scanning for scopes generally.
+                 */
+                ->filter(fn (array $scheme) => ($scheme['scanForScopes']
+                    ?? $scheme['scanForPassportScopes']
+                    ?? true) && isset($scheme['flows']))
                 ->map(
                     fn (array $scheme) => collect($scheme['flows'])
                         ->map(fn (array $flow) => collect($flow['scopes'] ?? [])->keys())
