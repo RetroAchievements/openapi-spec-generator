@@ -28,10 +28,13 @@ class OpenApiGenerator
      */
     public function generate(string $serverKey, string $format = 'yaml'): string
     {
-        $generator = new Generator($serverKey);
-        $openapi = $generator->generate();
+        [$openapi, $this->skippedRoutes] = self::withoutDependencyDeprecations(
+            static function () use ($serverKey): array {
+                $generator = new Generator($serverKey);
 
-        $this->skippedRoutes = $generator->skippedRoutes();
+                return [$generator->generate(), $generator->skippedRoutes()];
+            },
+        );
 
         $openapi->validate();
 
@@ -54,6 +57,24 @@ class OpenApiGenerator
         $storageDisk->put($fileName, $output);
 
         return $output;
+    }
+
+    /**
+     * @template T
+     *
+     * @param  callable(): T  $build
+     * @return T
+     */
+    private static function withoutDependencyDeprecations(callable $build): mixed
+    {
+        $reporting = error_reporting();
+        error_reporting($reporting & ~E_DEPRECATED);
+
+        try {
+            return $build();
+        } finally {
+            error_reporting($reporting);
+        }
     }
 
     /**
