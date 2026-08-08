@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Database\Seeders\DatabaseSeeder;
+use LaravelJsonApi\OpenApiSpec\Tests\Support\Middleware\DeclaresReadScope;
 use LaravelJsonApi\OpenApiSpec\Tests\TestCase;
 
 class SecurityScopeTest extends TestCase
@@ -97,6 +98,36 @@ class SecurityScopeTest extends TestCase
     public function test_a_scope_the_scheme_does_not_declare_is_discarded(): void
     {
         $this->pushMiddleware('App\Api\Middleware\RequireOAuthTokenWithScope:game-lists:read');
+
+        $this->assertEquals([['OAuth2' => []]], $this->securityFor('/posts'));
+    }
+
+    /**
+     * A gate that resolves its scope internally leaves no marker in the route
+     * definition, so without this the operation claims it needs no scope.
+     */
+    public function test_middleware_can_declare_the_scope_it_enforces(): void
+    {
+        $this->pushMiddleware(DeclaresReadScope::class);
+
+        $this->assertEquals([['OAuth2' => ['data:read']]], $this->securityFor('/posts'));
+    }
+
+    /**
+     * The declaring middleware sees the whole list, so a gate that stands down
+     * at runtime reaches the same conclusion in the document.
+     */
+    public function test_a_declaring_middleware_can_stand_down_for_another_scope(): void
+    {
+        $this->pushMiddleware(DeclaresReadScope::class);
+        $this->pushMiddleware('App\Api\Middleware\RequireOAuthTokenWithScope:follows:read');
+
+        $this->assertEquals([['OAuth2' => ['follows:read']]], $this->securityFor('/posts'));
+    }
+
+    public function test_middleware_without_the_declaration_contributes_nothing(): void
+    {
+        $this->pushMiddleware('Illuminate\Auth\Middleware\Authenticate');
 
         $this->assertEquals([['OAuth2' => []]], $this->securityFor('/posts'));
     }

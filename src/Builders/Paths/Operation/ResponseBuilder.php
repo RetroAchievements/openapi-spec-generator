@@ -108,6 +108,7 @@ class ResponseBuilder extends Builder
                     $this->defaults,
                     $class,
                     $description->getDescription(),
+                    $description->getAlsoDocument(),
                 );
             }
 
@@ -229,6 +230,30 @@ class ResponseBuilder extends Builder
                                 [
                                     'title' => 'Not Found',
                                     'status' => '404',
+                                ],
+                            ],
+                        ])),
+                ),
+            /*
+             * Rate limiting is the one error a client must handle differently
+             * from every other. It has to back off rather than fail. A client
+             * built from a document that omits it treats the limit as a fault.
+             */
+            Response::create('429')
+                ->statusCode(429)
+                ->description('Too Many Requests')
+                ->content(
+                    MediaType::create()
+                        ->mediaType(MediaTypeInterface::JSON_API_MEDIA_TYPE)
+                        ->schema($errorBody)
+                        ->examples(Example::create('-')->value([
+                            'jsonapi' => [
+                                'version' => '1.0',
+                            ],
+                            'errors' => [
+                                [
+                                    'title' => 'Too Many Requests',
+                                    'status' => '429',
                                 ],
                             ],
                         ])),

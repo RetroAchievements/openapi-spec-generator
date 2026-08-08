@@ -11,6 +11,7 @@ use LaravelJsonApi\Laravel\ServiceProvider;
 use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\OpenApiServiceProvider;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\HealthController;
+use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostLookupController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostStatsController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Controllers\PostSummaryController;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\JsonApi\V1\Server;
@@ -48,6 +49,11 @@ abstract class TestCase extends BaseTestCase
 
             // This route describes itself. It is not a resource. It is documented.
             $router->get('v1/posts/summary', PostSummaryController::class)->name('v1.posts.summary');
+
+            // Resolves its own subject, and sits behind a rate limiter.
+            $router->get('v1/posts/lookup', PostLookupController::class)
+                ->middleware('throttle:60,1')
+                ->name('v1.posts.lookup');
 
             // Holds a path parameter, which OpenAPI requires the path to declare.
             $router->get('v1/posts/{postId}/summary', PostSummaryController::class)

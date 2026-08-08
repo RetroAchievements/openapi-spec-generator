@@ -33,6 +33,57 @@ class ServerBlockTest extends TestCase
         return $document['servers'][0]['variables']['serverUrl']['default'];
     }
 
+    /**
+     * The description is where a reader learns how to obtain a credential, so
+     * dropping it leaves an unexplained header or flow in the document.
+     */
+    public function test_a_security_scheme_carries_its_configured_description(): void
+    {
+        config()->set('openapi.servers.v1.securitySchemes', [
+            'ApiKey' => [
+                'middleware' => ['api'],
+                'type' => 'apiKey',
+                'in' => 'header',
+                'name' => 'X-API-Key',
+                'description' => 'Where to get a key.',
+            ],
+            'OAuth2' => [
+                'middleware' => ['api'],
+                'type' => 'oauth2',
+                'description' => 'How the grant works.',
+                'flows' => [
+                    'authorizationCode' => [
+                        'authorizationUrl' => 'https://example.com/oauth/authorize',
+                        'tokenUrl' => 'https://example.com/oauth/token',
+                        'scopes' => ['data:read' => 'Read data'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $schemes = $this->document()['components']['securitySchemes'];
+
+        $this->assertEquals('Where to get a key.', $schemes['ApiKey']['description']);
+        $this->assertEquals('How the grant works.', $schemes['OAuth2']['description']);
+    }
+
+    public function test_a_security_scheme_without_a_description_omits_the_key(): void
+    {
+        config()->set('openapi.servers.v1.securitySchemes', [
+            'ApiKey' => [
+                'middleware' => ['api'],
+                'type' => 'apiKey',
+                'in' => 'header',
+                'name' => 'X-API-Key',
+            ],
+        ]);
+
+        $this->assertArrayNotHasKey(
+            'description',
+            $this->document()['components']['securitySchemes']['ApiKey'],
+        );
+    }
+
     public function test_the_server_url_is_read_from_config_when_set(): void
     {
         config()->set('openapi.servers.v1.url', 'https://api.example.com/api/v1');

@@ -17,10 +17,24 @@ class WithDescription
      *                                                                      class. A class declares nullability and element types. An example
      *                                                                      cannot declare either.
      */
+    /**
+     * @param  string[]  $alsoDocument  Status codes this route can report that its
+     *                                  shape does not imply, such as a 404 from a
+     *                                  route that resolves its own subject.
+     */
     public function __construct(
         private mixed $responseClassOrExample,
         private ?string $description = null,
+        private array $alsoDocument = [],
     ) {}
+
+    /**
+     * @return string[]
+     */
+    public function getAlsoDocument(): array
+    {
+        return $this->alsoDocument;
+    }
 
     /**
      * Get the description as a string, or returns null if none set.

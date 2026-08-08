@@ -111,6 +111,55 @@ class CustomRouteTest extends TestCase
         $this->assertEmpty($this->document['paths']['/posts/summary']['get']['parameters'] ?? []);
     }
 
+    /**
+     * A route with no id in its URI normally cannot report a missing record, so
+     * 404 is left out. A route that resolves its own subject still can.
+     */
+    public function test_a_route_can_declare_a_status_its_shape_does_not_imply(): void
+    {
+        $this->assertArrayHasKey('404', $this->document['paths']['/posts/lookup']['get']['responses']);
+        $this->assertArrayNotHasKey('404', $this->operation()['responses']);
+    }
+
+    /**
+     * Rate limiting is the one error a client handles by waiting rather than by
+     * failing, so a document that omits it misleads every generated client.
+     */
+    public function test_a_throttled_route_documents_too_many_requests(): void
+    {
+        $this->assertArrayHasKey('429', $this->document['paths']['/posts/lookup']['get']['responses']);
+    }
+
+    public function test_a_route_without_a_rate_limiter_does_not_document_it(): void
+    {
+        $this->assertArrayNotHasKey('429', $this->operation()['responses']);
+    }
+
+    /**
+     * A dead definition makes a client generator emit a model that no endpoint
+     * can ever return.
+     */
+    public function test_components_that_nothing_refers_to_are_dropped(): void
+    {
+        $referenced = [];
+        array_walk_recursive($this->document, function ($value, $key) use (&$referenced): void {
+            if ($key === '$ref') {
+                $referenced[] = $value;
+            }
+        });
+
+        foreach (['schemas', 'responses', 'parameters', 'requestBodies'] as $group) {
+            foreach (array_keys($this->document['components'][$group] ?? []) as $name) {
+                $this->assertContains("#/components/{$group}/{$name}", $referenced);
+            }
+        }
+    }
+
+    public function test_security_schemes_survive_the_prune(): void
+    {
+        $this->assertNotEmpty($this->document['components']['securitySchemes'] ?? []);
+    }
+
     public function test_resource_routes_are_unaffected(): void
     {
         $paths = $this->document['paths'];

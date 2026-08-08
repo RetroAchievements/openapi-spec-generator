@@ -75,6 +75,32 @@ class Route
     }
 
     /**
+     * Scopes named by the middleware class itself.
+     *
+     * A middleware that takes its scope as a parameter already states it in the
+     * route definition. One that resolves the scope internally has no such
+     * marker, so it can declare `openApiScopes()` instead. The whole middleware
+     * list is passed in because a gate that stands down when another middleware
+     * names a scope must reach the same conclusion here that it does at runtime.
+     *
+     * @param  array<int, mixed>  $routeMiddleware
+     * @return string[]
+     */
+    private static function declaredScopes(string $middleware, array $routeMiddleware): array
+    {
+        $separator = strpos($middleware, ':');
+        $class = $separator === false ? $middleware : substr($middleware, 0, $separator);
+
+        if (! class_exists($class) || ! method_exists($class, 'openApiScopes')) {
+            return [];
+        }
+
+        $declared = $class::openApiScopes($routeMiddleware);
+
+        return is_array($declared) ? array_values(array_filter($declared, 'is_string')) : [];
+    }
+
+    /**
      * Route constructor.
      */
     public function __construct(Server $server, IlluminateRoute $route)
@@ -134,7 +160,11 @@ class Route
                     }
                 }
 
-                $scopes = array_merge($scopes, self::scopeCandidates($middleware));
+                $scopes = array_merge(
+                    $scopes,
+                    self::scopeCandidates($middleware),
+                    self::declaredScopes($middleware, $middlewares),
+                );
             }
         }
 
@@ -259,6 +289,31 @@ class Route
     public function schema(): ?Schema
     {
         return $this->schema;
+    }
+
+    /**
+     * Whether a rate limiter stands in front of this route.
+     *
+     * Matches Laravel's throttle middleware by name, in both its alias and its
+     * class form, because either may reach the gathered list.
+     */
+    public function isThrottled(): bool
+    {
+        foreach ($this->route->gatherMiddleware() as $middleware) {
+            if (! is_string($middleware)) {
+                continue;
+            }
+
+            if ($middleware === 'throttle' || str_starts_with($middleware, 'throttle:')) {
+                return true;
+            }
+
+            if (str_contains($middleware, 'ThrottleRequests')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // @return SecurityRequirement[]

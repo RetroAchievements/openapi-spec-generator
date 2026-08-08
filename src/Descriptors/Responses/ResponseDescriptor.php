@@ -65,14 +65,31 @@ abstract class ResponseDescriptor extends Descriptor implements ResponseDescript
     protected function defaults(): array
     {
         $except = [];
-        if (! $this->hasId) {
+        if (! $this->hasId && ! in_array('404', $this->alsoDocument(), true)) {
             $except[] = '404';
         }
-        if (! $this->validates) {
+        if (! $this->validates && ! in_array('422', $this->alsoDocument(), true)) {
             $except[] = '422';
+        }
+        if (! $this->route->isThrottled()) {
+            $except[] = '429';
         }
 
         return $this->defaults->except($except)->toArray();
+    }
+
+    /**
+     * Status codes this route documents beyond the ones its shape implies.
+     *
+     * A route without an id in its URI normally cannot report a missing record,
+     * so 404 is dropped. A route that resolves its own subject can still report
+     * one, and only the route itself knows that.
+     *
+     * @return string[]
+     */
+    protected function alsoDocument(): array
+    {
+        return [];
     }
 
     /**

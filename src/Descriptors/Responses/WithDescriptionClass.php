@@ -30,8 +30,17 @@ class WithDescriptionClass extends ResponseDescriptor
         Collection $defaults,
         private readonly string $responseClass,
         private readonly ?string $summary = null,
+        private readonly array $alsoDocument = [],
     ) {
         parent::__construct($generator, $route, $schemaBuilder, $defaults);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function alsoDocument(): array
+    {
+        return $this->alsoDocument;
     }
 
     /**
