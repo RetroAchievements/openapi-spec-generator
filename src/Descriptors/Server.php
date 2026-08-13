@@ -162,9 +162,6 @@ class Server extends BaseDescriptor
 
     /**
      * @return \LaravelJsonApi\Core\Server\Server[]
-     *
-     * @todo Use for enums?
-     * @todo Extract only URI Server Prefix and let domain be set separately
      */
     public function servers(): array
     {
@@ -178,9 +175,7 @@ class Server extends BaseDescriptor
             ?? $this->generator->server()->url();
 
         return [
-            Objects\Server::create()->url('{serverUrl}')->variables(
-                Objects\ServerVariable::create('serverUrl')->default($url),
-            ),
+            Objects\Server::create()->url($url),
         ];
     }
 }
