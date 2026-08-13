@@ -30,7 +30,7 @@ class ServerBlockTest extends TestCase
 
     private function serverUrl(array $document): string
     {
-        return $document['servers'][0]['variables']['serverUrl']['default'];
+        return $document['servers'][0]['url'];
     }
 
     /**
@@ -89,6 +89,16 @@ class ServerBlockTest extends TestCase
         config()->set('openapi.servers.v1.url', 'https://api.example.com/api/v1');
 
         $this->assertEquals('https://api.example.com/api/v1', $this->serverUrl($this->document()));
+    }
+
+    public function test_the_server_url_is_emitted_without_a_variable(): void
+    {
+        config()->set('openapi.servers.v1.url', 'https://api.example.com/api/v1');
+
+        $server = $this->document()['servers'][0];
+
+        $this->assertEquals('https://api.example.com/api/v1', $server['url']);
+        $this->assertArrayNotHasKey('variables', $server);
     }
 
     public function test_the_server_url_falls_back_to_the_application_url(): void
