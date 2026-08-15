@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace LaravelJsonApi\OpenApiSpec\Tests\Support\JsonApi\V1\Comments;
 
 use LaravelJsonApi\Eloquent\Fields\DateTime;
+use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 use LaravelJsonApi\HashIds\HashId;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Models\Comment;
 
 class CommentSchema extends Schema
@@ -44,6 +46,8 @@ class CommentSchema extends Schema
         return [
             HashId::make()->alreadyHashed(),
             Str::make('content'),
+            Integer::make('score'),
+            Number::make('weight'),
             DateTime::make('createdAt')->sortable()->readOnly(),
             BelongsTo::make('post'),
             DateTime::make('updatedAt')->sortable()->readOnly(),

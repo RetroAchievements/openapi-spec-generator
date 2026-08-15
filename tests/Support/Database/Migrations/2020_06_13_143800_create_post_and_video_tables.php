@@ -81,6 +81,8 @@ class CreatePostAndVideoTables extends Migration
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('user_id');
             $table->text('content');
+            $table->bigInteger('score');
+            $table->float('weight');
 
             $table->foreign('post_id')
                 ->references('id')
