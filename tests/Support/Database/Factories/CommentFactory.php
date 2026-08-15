@@ -43,6 +43,8 @@ class CommentFactory extends Factory
     {
         return [
             'content' => $this->faker->text,
+            'score' => $this->faker->numberBetween(-100, 100),
+            'weight' => $this->faker->randomFloat(2, 0, 10),
             'post_id' => Post::factory(),
             'user_id' => User::factory(),
         ];

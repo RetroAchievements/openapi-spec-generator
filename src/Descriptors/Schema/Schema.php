@@ -36,6 +36,7 @@ use LaravelJsonApi\OpenApiSpec\Contracts\Descriptors\Schema\SortablesDescriptor;
 use LaravelJsonApi\OpenApiSpec\Contracts\Descriptors\SchemaDescriptor;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Descriptor;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Schema\Filters\WithDescription as FilterWithDescriptionDescriptor;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\WithDescription as FieldWithDescription;
 use LaravelJsonApi\OpenApiSpec\Filters\WithDescription as FilterWithDescription;
 use LaravelJsonApi\OpenApiSpec\ResourceContainer;
@@ -619,6 +620,9 @@ class Schema extends Descriptor implements PaginationDescriptor, SchemaDescripto
                 switch (true) {
                     case $field instanceof Boolean:
                         $fieldDataType = OASchema::boolean($fieldId);
+                        break;
+                    case $field instanceof Integer:
+                        $fieldDataType = OASchema::integer($fieldId);
                         break;
                     case $field instanceof Number:
                         $fieldDataType = OASchema::number($fieldId);
