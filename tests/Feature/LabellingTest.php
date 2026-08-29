@@ -7,9 +7,6 @@ use LaravelJsonApi\OpenApiSpec\Facades\GeneratorFacade;
 use LaravelJsonApi\OpenApiSpec\Tests\Support\Database\Seeders\DatabaseSeeder;
 use LaravelJsonApi\OpenApiSpec\Tests\TestCase;
 
-/**
- * Labels and defaults that a reader sees directly in rendered documentation.
- */
 class LabellingTest extends TestCase
 {
     use RefreshDatabase;
@@ -42,19 +39,11 @@ class LabellingTest extends TestCase
         $this->assertEquals(25, $this->parameter('/posts/{post}/tags', 'page[size]')['schema']['default']);
     }
 
-    /**
-     * The default belongs to the paginator, so a schema that declares none must not
-     * acquire one.
-     */
     public function test_page_size_carries_no_default_when_the_schema_declares_none(): void
     {
         $this->assertArrayNotHasKey('default', $this->parameter('/posts', 'page[size]')['schema']);
     }
 
-    /**
-     * The default must follow the inverse schema, like every other collection
-     * parameter on a relationship endpoint.
-     */
     public function test_the_page_size_default_is_resolved_against_the_inverse_schema(): void
     {
         $this->assertEquals(
@@ -63,9 +52,6 @@ class LabellingTest extends TestCase
         );
     }
 
-    /**
-     * A relationship response describes the resource it returns, not its parent.
-     */
     public function test_a_related_response_is_described_by_the_inverse_resource(): void
     {
         $description = $this->operation('/posts/{post}/tags')['responses']['200']['description'];
@@ -91,11 +77,51 @@ class LabellingTest extends TestCase
         );
     }
 
-    /**
-     * Plain resource operations keep their existing labels.
-     */
     public function test_non_relationship_descriptions_are_unchanged(): void
     {
         $this->assertEquals('Index posts', $this->operation('/posts')['responses']['200']['description']);
+    }
+
+    public function test_a_collection_summary_names_the_resource(): void
+    {
+        $this->assertEquals('List posts', $this->operation('/posts')['summary']);
+    }
+
+    public function test_a_single_resource_summary_carries_an_article(): void
+    {
+        $this->assertEquals('Get a post', $this->operation('/posts/{post}')['summary']);
+    }
+
+    public function test_a_related_summary_leads_with_the_relation(): void
+    {
+        $this->assertEquals('List tags for a post', $this->operation('/posts/{post}/tags')['summary']);
+    }
+
+    public function test_a_relationship_summary_leads_with_the_singular_relation(): void
+    {
+        $this->assertEquals(
+            'List tag identifiers for a post',
+            $this->operation('/posts/{post}/relationships/tags')['summary'],
+        );
+    }
+
+    public function test_a_tag_reads_as_words(): void
+    {
+        $this->assertEquals(['Posts'], $this->operation('/posts')['tags']);
+    }
+
+    public function test_no_summary_leaks_a_raw_identifier(): void
+    {
+        foreach ($this->document['paths'] as $path => $operations) {
+            foreach ($operations as $method => $operation) {
+                $summary = $operation['summary'] ?? '';
+
+                $this->assertDoesNotMatchRegularExpression(
+                    '/[a-z][A-Z]|[a-z]-[a-z]/',
+                    $summary,
+                    "Summary for [{$method} {$path}] holds a raw identifier: {$summary}",
+                );
+            }
+        }
     }
 }

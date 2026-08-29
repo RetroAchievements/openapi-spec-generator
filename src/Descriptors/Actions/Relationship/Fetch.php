@@ -2,6 +2,7 @@
 
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Actions\Relationship;
 
+use Illuminate\Support\Str;
 use LaravelJsonApi\OpenApiSpec\Descriptors\Actions\ActionDescriptor;
 
 class Fetch extends ActionDescriptor
@@ -13,6 +14,6 @@ class Fetch extends ActionDescriptor
      */
     protected function summary(): string
     {
-        return "Show {$this->route->relationName()} identifiers for a {$this->route->name(true)}";
+        return "List {$this->humanize(Str::singular($this->route->relationName()))} identifiers for {$this->withArticle($this->route->name(true))}";
     }
 }

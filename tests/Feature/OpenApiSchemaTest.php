@@ -44,7 +44,7 @@ class OpenApiSchemaTest extends TestCase
 
     public function test_it_describes_non_eloquent_resources(): void
     {
-        $this->assertEquals('Get all sites', $this->spec['paths']['/sites']['get']['summary']);
+        $this->assertEquals('List sites', $this->spec['paths']['/sites']['get']['summary']);
         $this->assertEquals('object', $this->spec['components']['schemas']['resources.sites.resource.fetch']['type']);
     }
 }

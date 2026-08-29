@@ -6,6 +6,6 @@ class Detach extends Attach
 {
     protected function summary(): string
     {
-        return "Detach {$this->route->relationName()} relation";
+        return "Remove {$this->humanize($this->route->relationName())} from {$this->withArticle($this->route->name(true))}";
     }
 }

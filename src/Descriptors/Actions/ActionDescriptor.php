@@ -3,6 +3,7 @@
 namespace LaravelJsonApi\OpenApiSpec\Descriptors\Actions;
 
 use GoldSpecDigital\ObjectOrientedOAS\Exceptions\InvalidArgumentException;
+use Illuminate\Support\Str;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Operation;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Parameter;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\RequestBody;
@@ -95,12 +96,35 @@ abstract class ActionDescriptor implements ActionDescriptorContract
         return '';
     }
 
+    protected function humanize(string $identifier): string
+    {
+        return Str::lower(Str::headline($identifier));
+    }
+
+    protected function article(string $noun): string
+    {
+        $noun = Str::lower($noun);
+
+        if (Str::startsWith($noun, ['us', 'uni', 'uti', 'eu'])) {
+            return 'a';
+        }
+
+        return Str::startsWith($noun, ['a', 'e', 'i', 'o', 'u']) ? 'an' : 'a';
+    }
+
+    protected function withArticle(string $identifier): string
+    {
+        $noun = $this->humanize($identifier);
+
+        return "{$this->article($noun)} {$noun}";
+    }
+
     /**
      * @return string[]
      */
     protected function tags(): array
     {
-        return [ucfirst($this->route->name())];
+        return [ucfirst($this->humanize($this->route->name()))];
     }
 
     /**

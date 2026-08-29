@@ -6,6 +6,6 @@ class Update extends Attach
 {
     protected function summary(): string
     {
-        return "Update {$this->route->relationName()} relation";
+        return "Replace the {$this->humanize($this->route->relationName())} of {$this->withArticle($this->route->name(true))}";
     }
 }

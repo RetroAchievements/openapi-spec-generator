@@ -8,6 +8,6 @@ class FetchRelated extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Show the {$this->route->relationName()} of a {$this->route->name(true)}";
+        return "List {$this->humanize($this->route->relationName())} for {$this->withArticle($this->route->name(true))}";
     }
 }

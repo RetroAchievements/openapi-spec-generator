@@ -8,6 +8,6 @@ class Attach extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Attach {$this->route->relationName()} relation";
+        return "Add {$this->humanize($this->route->relationName())} to {$this->withArticle($this->route->name(true))}";
     }
 }
