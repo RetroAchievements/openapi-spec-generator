@@ -6,6 +6,6 @@ class Store extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Store one {$this->route->name(true)}";
+        return "Create {$this->withArticle($this->route->name(true))}";
     }
 }

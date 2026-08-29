@@ -6,6 +6,6 @@ class FetchMany extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Get all {$this->route->name()}";
+        return "List {$this->humanize($this->route->name())}";
     }
 }

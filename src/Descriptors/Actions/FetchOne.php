@@ -6,6 +6,6 @@ class FetchOne extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Show one {$this->route->name(true)}";
+        return "Get {$this->withArticle($this->route->name(true))}";
     }
 }

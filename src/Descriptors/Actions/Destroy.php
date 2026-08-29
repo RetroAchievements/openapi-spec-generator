@@ -6,6 +6,6 @@ class Destroy extends ActionDescriptor
 {
     protected function summary(): string
     {
-        return "Destroy one {$this->route->name(true)}";
+        return "Delete {$this->withArticle($this->route->name(true))}";
     }
 }
