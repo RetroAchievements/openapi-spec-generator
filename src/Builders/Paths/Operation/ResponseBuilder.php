@@ -148,10 +148,12 @@ class ResponseBuilder extends Builder
                     Schema::object('error')
                         ->title('Error')
                         ->properties(
+                            Schema::string('code'),
                             Schema::string('detail'),
                             Schema::string('status'),
                             Schema::string('title'),
                             Schema::object('source')->properties(Schema::string('pointer')),
+                            Schema::object('meta'),
                         )
                         ->required('status', 'title'),
                 ),

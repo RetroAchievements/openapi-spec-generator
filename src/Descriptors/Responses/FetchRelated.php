@@ -36,4 +36,18 @@ class FetchRelated extends ResponseDescriptor
 
         return $this->schemaBuilder->build($this->route)->objectId('data');
     }
+
+    protected function meta(): ?Schema
+    {
+        if (! $this->route->relation() instanceof ToMany || $this->route->isPolymorphic()) {
+            return null;
+        }
+
+        return $this->pageMeta($this->route->inversSchema());
+    }
+
+    protected function links(): ?Schema
+    {
+        return $this->route->relation() instanceof ToMany ? $this->pageLinks() : $this->selfLinks();
+    }
 }

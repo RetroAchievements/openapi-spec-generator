@@ -8,6 +8,8 @@ use GoldSpecDigital\ObjectOrientedOAS\Objects\MediaType;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Response;
 use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 use Illuminate\Support\Collection;
+use LaravelJsonApi\Contracts\Schema\Schema as JASchema;
+use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation\ResponseBuilder;
 use LaravelJsonApi\OpenApiSpec\Builders\Paths\Operation\SchemaBuilder;
 use LaravelJsonApi\OpenApiSpec\ComponentsContainer;
@@ -123,6 +125,43 @@ abstract class ResponseDescriptor extends Descriptor implements ResponseDescript
     protected function links(): ?Schema
     {
         return null;
+    }
+
+    protected function pageMeta(?JASchema $schema): ?Schema
+    {
+        if ($schema === null || ! method_exists($schema, 'pagination') || ! $schema->pagination() instanceof PagePagination) {
+            return null;
+        }
+
+        return Schema::object('meta')->properties(
+            Schema::object('page')
+                ->properties(
+                    Schema::integer('currentPage'),
+                    Schema::integer('from')->nullable(),
+                    Schema::integer('lastPage'),
+                    Schema::integer('perPage'),
+                    Schema::integer('to')->nullable(),
+                    Schema::integer('total'),
+                )
+                ->required('currentPage', 'lastPage', 'perPage', 'total'),
+        )->required('page');
+    }
+
+    protected function pageLinks(): Schema
+    {
+        return Schema::object('links')
+            ->properties(
+                Schema::string('first'),
+                Schema::string('last'),
+                Schema::string('prev'),
+                Schema::string('next'),
+            )
+            ->required('first', 'last');
+    }
+
+    protected function selfLinks(): Schema
+    {
+        return Schema::object('links')->properties(Schema::string('self'))->required('self');
     }
 
     protected function included(): ?Schema

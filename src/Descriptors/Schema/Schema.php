@@ -151,11 +151,20 @@ class Schema extends Descriptor implements PaginationDescriptor, SchemaDescripto
         if ($fields->has('relationships')) {
             $properties[] = OASchema::object('relationships')->properties(...$fields->get('relationships'));
         }
+        $properties[] = $this->resourceLinks();
 
         return OASchema::object($objectId)
             ->title('Resource/'.ucfirst($name).'/Fetch')
             ->required('type', 'id', 'attributes')
             ->properties(...$properties);
+    }
+
+    protected function resourceLinks(): OASchema
+    {
+        return OASchema::object('links')
+            ->properties(OASchema::string('self'))
+            ->additionalProperties(OASchema::string())
+            ->required('self');
     }
 
     /**
@@ -179,6 +188,7 @@ class Schema extends Descriptor implements PaginationDescriptor, SchemaDescripto
             $properties[] = OASchema::object('relationships')->properties(...$fields->get('relationships'));
             $includedItems = array_merge($includedItems, $this->included($schema->fields(), $resource, $type));
         }
+        $properties[] = $this->resourceLinks();
 
         $oaSchema = OASchema::object($objectId)
             ->title('Resource/'.ucfirst($name).'/Fetch')
@@ -764,21 +774,6 @@ class Schema extends Descriptor implements PaginationDescriptor, SchemaDescripto
         ?bool $includeData = null,
     ): OASchema {
         $fieldId = $relation->name();
-        if ($includeData === null) {
-            foreach ($example->relationships(null) as $resourceRelation) {
-                if (! $resourceRelation instanceof Relation) {
-                    continue;
-                }
-                if ($resourceRelation->fieldName() !== $fieldId) {
-                    continue;
-                }
-                if ($resourceRelation->showData()) {
-                    $includeData = true;
-                    break;
-                }
-            }
-        }
-
         $type = $relation->inverse();
 
         $linkSchema = $this->relationshipLinks($relation, $example);
@@ -796,11 +791,7 @@ class Schema extends Descriptor implements PaginationDescriptor, SchemaDescripto
                 "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"$fieldId\" to the \"include\" query parameter; results will be found in `.included`.",
             );
 
-        if ($includeData) {
-            return $schema->properties($dataSchema);
-        } else {
-            return $schema->properties($linkSchema);
-        }
+        return $schema->properties($dataSchema, $linkSchema);
     }
 
     /**

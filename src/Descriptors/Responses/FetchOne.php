@@ -31,6 +31,11 @@ class FetchOne extends ResponseDescriptor
         return $this->schemaBuilder->build($this->route)->objectId('data');
     }
 
+    protected function links(): ?Schema
+    {
+        return $this->selfLinks();
+    }
+
     /**
      * @throws InvalidArgumentException
      */

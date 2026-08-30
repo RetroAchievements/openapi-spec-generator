@@ -29,6 +29,16 @@ class FetchMany extends ResponseDescriptor
         return Schema::array('data')->items($this->schemaBuilder->build($this->route));
     }
 
+    protected function meta(): ?Schema
+    {
+        return $this->pageMeta($this->route->schema());
+    }
+
+    protected function links(): ?Schema
+    {
+        return $this->pageLinks();
+    }
+
     /**
      * @throws InvalidArgumentException
      */
