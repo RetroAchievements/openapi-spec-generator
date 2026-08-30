@@ -147,4 +147,21 @@ class SecurityScopeTest extends TestCase
 
         $this->assertEquals([['OAuth2' => []]], $this->securityFor('/posts'));
     }
+
+    public function test_a_scheme_can_exclude_routes_by_middleware(): void
+    {
+        config()->set('openapi.servers.v1.securitySchemes.ApiKey', [
+            'middleware' => ['api'],
+            'excludeMiddleware' => [DeclaresReadScope::class],
+            'type' => 'apiKey',
+            'in' => 'header',
+            'name' => 'X-API-Key',
+        ]);
+
+        $this->pushMiddleware(DeclaresReadScope::class.':follows:read');
+
+        $schemes = array_merge(...array_map('array_keys', $this->securityFor('/posts')));
+        $this->assertNotContains('ApiKey', $schemes);
+        $this->assertContains('OAuth2', $schemes);
+    }
 }

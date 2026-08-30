@@ -144,8 +144,8 @@ class Route
 
         $scopes = [];
         $appliedSchemes = [];
+        $middlewares = $this->route->gatherMiddleware();
         if (! empty($securitySchemes)) {
-            $middlewares = $this->route->gatherMiddleware();
             foreach ($middlewares as $middleware) {
                 if (! is_string($middleware)) {
                     continue;
@@ -193,6 +193,14 @@ class Route
                 )->securityScheme($securityScheme);
                 $requirement = $requirement->scopes(...$overlap->toArray());
                 $appliedSchemes[$securityScheme] = $requirement;
+            }
+        }
+
+        // A scheme can opt out of routes that refuse it, such as an API key on an
+        // endpoint that accepts only a scoped OAuth token.
+        foreach ($securitySchemes as $securityScheme => $scheme) {
+            if (self::usesAnyMiddleware($middlewares, $scheme['excludeMiddleware'] ?? [])) {
+                unset($appliedSchemes[$securityScheme]);
             }
         }
 
@@ -309,6 +317,24 @@ class Route
             }
 
             if (str_contains($middleware, 'ThrottleRequests')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Route middleware entries carry their parameters after a colon, so an
+     * exclusion matches on the class name alone.
+     *
+     * @param  array<int, mixed>  $middlewares
+     * @param  array<int, string>  $classes
+     */
+    private static function usesAnyMiddleware(array $middlewares, array $classes): bool
+    {
+        foreach ($middlewares as $middleware) {
+            if (is_string($middleware) && in_array(explode(':', $middleware, 2)[0], $classes, true)) {
                 return true;
             }
         }
