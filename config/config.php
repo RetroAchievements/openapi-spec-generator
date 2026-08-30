@@ -25,6 +25,7 @@ return [
                 'OAuth2' => [
                     'middleware' => ['auth:api'], // routes with any of these middleware attached will require this scheme.
                     'controllers' => [Controller::class => ['index', 'show']], // optional, if given acts as an additional requirement for the auth type to match, where the routes, controller must be an instance of the class and the route method must match (in this example, index() or show()).
+                    'excludeMiddleware' => [], // optional, routes with any of these middleware classes attached will not offer this scheme, even when 'middleware' matched. Parameters after a colon are ignored when matching.
                     'scanForPassportScopes' => true, // Defaults to true. Scans for Passport CheckToken/CheckTokenForAnyScope middleware and uses those scopes.
                     'type' => 'oauth2',
                     'flows' => [
